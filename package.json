@@ -20,6 +20,8 @@
   },
   "homepage": "https://github.com/Burn-E99/BilboBottins#readme",
   "dependencies": {
-    "discord.js": "^11.4.2"
+    "cheerio": "^1.0.0-rc.2",
+    "discord.js": "^11.4.2",
+    "request": "^2.88.0"
   }
 }

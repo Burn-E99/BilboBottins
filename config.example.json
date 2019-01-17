@@ -1,3 +1,4 @@
 {
-	"token": "the_bot_token"
+	"token": "the_bot_token",
+	"prefix": "bb:"
 }
