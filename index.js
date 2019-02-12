@@ -175,12 +175,11 @@ function searchPrompt() {
     command = args.shift();
     if(input == 'exit') {
       return rl.close();
-    }
-    if(command == "m") {
+    } else if(command == "m") {
       try {
         const channelID = args.shift();
-        args.join(" ");
-        const messages = split2k(args);
+        const message = args.join(" ");
+        const messages = split2k(message);
         for(let i=0;i<messages.length;i++) {
           client.channels.get(channelID).send(messages[i]);
         }
@@ -188,9 +187,9 @@ function searchPrompt() {
       catch(e) {
         console.error(e);
       }
+    } else {
+      console.log("undefined command");
     }
-
-    console.log("You entered: ", input);
     searchPrompt();
   });
 }
