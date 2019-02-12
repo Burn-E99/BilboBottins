@@ -2,6 +2,7 @@
 const Discord = require("discord.js");
 const cheerio = require("cheerio");
 const request = require("request");
+const wtf = require("wtf_wikipedia");
 const fs = require("fs");
 
 // This is your client. Some people call it `bot`, some people call it `self`, 
@@ -14,9 +15,13 @@ const config = require("./config.json");
 // config.token contains the bot's token
 // config.prefix contains the message prefix.
 
+// Here we load the package.json file containing the version number
+const package = require("./package.json");
+
 client.on("ready", () => {
   // This event will run if the bot starts, and logs in, successfully.
-  console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`); 
+  log2Discord();
+  log2Discord(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`);
   // Example of changing the bot's playing game to something useful. `client.user` is what the
   // docs refer to as the "ClientUser".
   client.user.setActivity(`Serving ${client.guilds.size} servers`);
@@ -24,16 +29,17 @@ client.on("ready", () => {
 
 client.on("guildCreate", guild => {
   // This event triggers when the bot joins a guild.
-  console.log(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`);
+  log2Discord(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`);
   client.user.setActivity(`Serving ${client.guilds.size} servers`);
 });
 
 client.on("guildDelete", guild => {
   // this event triggers when the bot is removed from a guild.
-  console.log(`I have been removed from: ${guild.name} (id: ${guild.id})`);
+  log2Discord(`I have been removed from: ${guild.name} (id: ${guild.id})`);
   client.user.setActivity(`Serving ${client.guilds.size} servers`);
 });
 
+client.on("error", log2Discord);
 
 client.on("message", async message => {
   // This event will run on every single message received, from any channel or DM.
@@ -62,9 +68,43 @@ client.on("message", async message => {
     m.edit(`Pong! Latency is ${m.createdTimestamp - message.createdTimestamp}ms. API Latency is ${Math.round(client.ping)}ms`);
   }
 
-  if(command === "w") {
+  // bb:w[lang,where to send,how much to send]
+  /*
+    help: shows this
+    lang: en(default), de, etc
+    where to send: here(default) (current channel), self (to author of command), both (current channel and author of command (author recieves all))
+    how much to send to channel: intro(default) (only first section), sections## (sections 0-##), all (only available to users with Bobbit role or if user called BilboBottins in a designated bot-spam channel)
+  */
+  if(command === "w" || command.startsWith("w[")) {
     // Shows a wikipedia article
-    const m = await message.channel.send("WIP, wikipedia article will show up here soon " + args[0]);
+
+    // adjust language to be inside settings block
+    let lang = "";
+    if(args[0].startsWith('-')) {
+      lang = args[0].substr(1);
+      args.unshift();
+    } else {
+      lang = "en";
+    }
+    const title = args.join(" ");
+    const m = await message.channel.send("Looking for page with title \"" + title + "\".");
+    wtf.fetch(title, lang, {'Api-User-Agent': 'BilboBottins'})
+    .then((doc) => {
+      if(!doc) {
+        m.edit("Page with title \"" + title + "\" not found.");
+        return;
+      }
+      m.delete();
+      const messages = split2k(doc.text());
+      for(let i=0;i<messages.length;i++) {
+        message.channel.send(messages[i]);
+      }
+      message.channel.send("---- Done! ----")
+    })
+    .catch((err) => {
+      console.log(err);
+      m.edit("Something really broke....");
+    })
   }
 
   if(command === "l") {
@@ -83,6 +123,43 @@ client.on("message", async message => {
       message.author.send(contents);
     });
   }
+
+  if(command === "test") {
+    await message.channel.send("This is testing, and its feature *WILL* change.");
+    await message.channel.send("Current feature: Direct channel sending.\n");
+
+    client.channels.get("542497765146492929").send("Testing");
+  }
 });
 
 client.login(config.token);
+
+function split2k(chunk) {
+  let bites = [];
+  while(chunk.length > 2000) {
+    // take 2001 chars to see if word magically ends on char 2000
+    let bite = chunk.substr(0, 2001);
+    const etib = bite.split("").reverse().join("");
+    const lastI = etib.indexOf(" ");
+    if(lastI > 0) {
+      bite = bite.substr(0, 2000 - lastI);
+    } else {
+      bite = bite.substr(0, 2000);
+    }
+    bites.push(bite);
+    chunk = chunk.slice(bite.length);
+  }
+  // Push leftovers into bites
+  bites.push(chunk);
+
+  return bites;
+}
+
+function log2Discord(message) {
+  console.log(Date());
+  console.log(message);
+  const messages = split2k(message);
+  for(let i=0;i<messages.length;i++) {
+    client.channels.get("542497765146492929").send(messages[i]);
+  }
+}
