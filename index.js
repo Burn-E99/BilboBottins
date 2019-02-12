@@ -173,10 +173,10 @@ function log2Discord(message) {
 function cmdPrompt() {
   rl.question("cmd> ", input => {
     const args = input.split(" ");
-    command = args.shift();
-    if(input == 'exit') {
-      return rl.close();
-    } else if(command == "m") {
+    command = args.shift().toLowerCase();
+    if(command === 'exit') {
+      process.exit();
+    } else if(command === "m") {
       try {
         const channelID = args.shift();
         const message = args.join(" ");
@@ -188,6 +188,8 @@ function cmdPrompt() {
       catch(e) {
         console.error(e);
       }
+    } else if(command === 'help') {
+      console.log("BilboBottins CLI Help:\n\nAvailable Commands:\n  exit - closes bot\n  m [ChannelID] [messgae] - sends message to specific ChannelID as the bot\n  help - this message");
     } else {
       console.log("undefined command");
     }
