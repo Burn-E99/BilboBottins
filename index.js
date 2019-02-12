@@ -170,11 +170,27 @@ function log2Discord(message) {
 }
 
 function searchPrompt() {
-  rl.question('cmd> ', input => {
-    if( input == 'exit' )
+  rl.question("cmd> ", input => {
+    const args = input.split(" ");
+    command = args.shift();
+    if(input == 'exit') {
       return rl.close();
+    }
+    if(command == "m") {
+      try {
+        const channelID = args.shift();
+        args.join(" ");
+        const messages = split2k(args);
+        for(let i=0;i<messages.length;i++) {
+          client.channels.get(channelID).send(messages[i]);
+        }
+      }
+      catch(e) {
+        console.error(e);
+      }
+    }
 
-    log('You entered: ', input);
+    console.log("You entered: ", input);
     searchPrompt();
   });
 }
