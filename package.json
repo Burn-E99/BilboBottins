@@ -1,6 +1,6 @@
 {
   "name": "bilbobottins",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "This bot is a bot by Ean Milligan that can do random things as I desire. Feature requests are welcome, but there is 0 guarantee of them being added.",
   "main": "index.js",
   "scripts": {
