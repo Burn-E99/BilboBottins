@@ -140,6 +140,7 @@ client.on("message", async message => {
 client.login(config.token);
 
 function split2k(chunk) {
+  chunk = chunk.replace("\\n", "\n");
   let bites = [];
   while(chunk.length > 2000) {
     // take 2001 chars to see if word magically ends on char 2000
@@ -151,7 +152,6 @@ function split2k(chunk) {
     } else {
       bite = bite.substr(0, 2000);
     }
-    bite = bite.replace("\\n", "\n");
     bites.push(bite);
     chunk = chunk.slice(bite.length);
   }
