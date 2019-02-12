@@ -151,6 +151,7 @@ function split2k(chunk) {
     } else {
       bite = bite.substr(0, 2000);
     }
+    bite = bite.replace("\\n", "\n");
     bites.push(bite);
     chunk = chunk.slice(bite.length);
   }
@@ -169,7 +170,7 @@ function log2Discord(message) {
   }
 }
 
-function searchPrompt() {
+function cmdPrompt() {
   rl.question("cmd> ", input => {
     const args = input.split(" ");
     command = args.shift();
@@ -190,7 +191,7 @@ function searchPrompt() {
     } else {
       console.log("undefined command");
     }
-    searchPrompt();
+    cmdPrompt();
   });
 }
-searchPrompt();
+cmdPrompt();
