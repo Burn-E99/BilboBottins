@@ -4,6 +4,7 @@ const cheerio = require("cheerio");
 const request = require("request");
 const wtf = require("wtf_wikipedia");
 const fs = require("fs");
+const readline = require("readline");
 
 // This is your client. Some people call it `bot`, some people call it `self`, 
 // some might call it `cootchie`. Either way, when you see `client.something`, or `bot.something`,
@@ -18,10 +19,14 @@ const config = require("./config.json");
 // Here we load the package.json file containing the version number
 const package = require("./package.json");
 
+var rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
 client.on("ready", () => {
   // This event will run if the bot starts, and logs in, successfully.
-  log2Discord();
-  log2Discord(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`);
+  log2Discord(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.\nBot version is ${package.version}`);
   // Example of changing the bot's playing game to something useful. `client.user` is what the
   // docs refer to as the "ClientUser".
   client.user.setActivity(`Serving ${client.guilds.size} servers`);
@@ -163,3 +168,14 @@ function log2Discord(message) {
     client.channels.get("542497765146492929").send(messages[i]);
   }
 }
+
+function searchPrompt() {
+  rl.question('cmd> ', input => {
+    if( input == 'exit' )
+      return rl.close();
+
+    log('You entered: ', input);
+    searchPrompt();
+  });
+}
+searchPrompt();
