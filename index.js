@@ -162,6 +162,9 @@ function split2k(chunk) {
 }
 
 function log2Discord(message) {
+  if(typeof message !== "string") {
+    message = JSON.stringify(message);
+  }
   console.log(Date());
   console.log(message);
   const messages = split2k(message);
